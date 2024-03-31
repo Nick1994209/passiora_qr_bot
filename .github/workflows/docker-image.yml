@@ -31,4 +31,5 @@ jobs:
         with:
           push: true
           platforms: linux/amd64
+          no-cache: true
           tags: passiora-qr-bot.cr.cloud.ru/passiora-qr-bot:latest
