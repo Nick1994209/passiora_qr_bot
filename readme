@@ -1,0 +1,8 @@
+## Бот проверки подписки
+
+### Сборка проекта в контейнер docker и отправка в регистр
+> todo: автоматизировать
+
+ - Пройти авторизацию на console.cloud.ru
+ - Присвоить тег контейнеру (уже сделано в docker compose), нужно просто запустить команду `docker compose build`
+ - отправить контейнер в облако `docker tag passiora-qr-bot:latest passiora-qr-bot.cr.cloud.ru/passiora-qr-bot:latest`

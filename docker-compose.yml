@@ -5,6 +5,7 @@ services:
     container_name: passiora-qr-bot
     working_dir: /passiora-qr-bot
     restart: always
+    image: passiora-qr-bot:latest
     build:
       context: .
       dockerfile: Dockerfile
