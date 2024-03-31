@@ -5,9 +5,9 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ARG TOKEN
 ARG IG_LOGIN
 ARG IG_PASSWORD
-ENV TOKEN=$TOKEN
-ENV IG_LOGIN=$IG_LOGIN
-ENV IG_PASSWORD=$IG_PASSWORD
+ENV TOKEN {$TOKEN}
+ENV IG_LOGIN {$IG_LOGIN}
+ENV IG_PASSWORD {$IG_PASSWORD}
 # Установим директорию для работы
 
 WORKDIR /passiora_qr_bot
@@ -22,4 +22,8 @@ RUN pip install --no-cache-dir -r ./requirements.txt
 COPY ./ ./
 
 RUN chmod -R 777 ./
+EXPOSE 5000
+
+HEALTHCHECK --interval=5s --timeout=10s --retries=3 CMD curl -sS 127.0.0.1 || exit 1
 # more https://proghunter.ru/articles/python-bot-with-chatgpt-dockerization-and-deployment-to-vps-guide
+CMD ["python", "main.py"]
