@@ -1,9 +1,9 @@
 version: "3.9"
 
 services:
-  passiora_qr_bot:
-    container_name: passiora_qr_bot
-    working_dir: /passiora_qr_bot
+  passiora-qr-bot:
+    container_name: passiora-qr-bot
+    working_dir: /passiora-qr-bot
     restart: always
     build:
       context: .
