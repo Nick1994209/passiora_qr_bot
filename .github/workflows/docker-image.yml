@@ -44,4 +44,6 @@ jobs:
           platforms: linux/amd64
           no-cache: true
           labels: ${{ steps.meta.outputs.labels }}
-          tags: passiora-qr-bot.cr.cloud.ru/passiora-qr-bot:latest
+          tags: |
+            passiora-qr-bot.cr.cloud.ru/passiora-qr-bot:${{ steps.meta.outputs.tags }}
+            passiora-qr-bot.cr.cloud.ru/passiora-qr-bot:latest
