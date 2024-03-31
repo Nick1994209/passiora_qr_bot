@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       -
@@ -29,7 +32,10 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: true
           platforms: linux/amd64
           no-cache: true
-          tags: passiora-qr-bot:latest
+          tags: |
+            passiora-qr-bot.cr.cloud.ru/passiora-qr-bot:${{ steps.vars.outputs.tag }}
+            passiora-qr-bot.cr.cloud.ru/passiora-qr-bot:latest
