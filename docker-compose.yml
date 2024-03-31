@@ -9,12 +9,7 @@ services:
       context: .
       dockerfile: Dockerfile
     command: sh -c "python main.py"
-    networks:
-      - caddy
     environment:
       - TOKEN=${TOKEN}
       - IG_LOGIN=${IG_LOGIN}
-      - IG_PASSWORD=${BOT_TOKEN}
-networks:
-  caddy:
-    external: true
+      - IG_PASSWORD=${IG_PASSWORD}
