@@ -24,6 +24,5 @@ COPY ./ ./
 RUN chmod -R 777 ./
 EXPOSE 5000
 
-HEALTHCHECK --interval=5s --timeout=10s --retries=3 CMD curl -sS 127.0.0.1 || exit 1
 # more https://proghunter.ru/articles/python-bot-with-chatgpt-dockerization-and-deployment-to-vps-guide
 CMD ["python", "main.py"]
