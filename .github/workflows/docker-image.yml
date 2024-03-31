@@ -29,11 +29,19 @@ jobs:
           username: ${{ secrets.HUB_USERNAME }}
           password: ${{ secrets.HUB_TOKEN }}
       -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: passiora-qr-bot.cr.cloud.ru/passiora-qr-bot
+      -
         name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ./Dockerfile
           push: true
           platforms: linux/amd64
           no-cache: true
+          labels: ${{ steps.meta.outputs.labels }}
           tags: passiora-qr-bot.cr.cloud.ru/passiora-qr-bot:latest
