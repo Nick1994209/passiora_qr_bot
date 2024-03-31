@@ -20,3 +20,10 @@ check_sub_kb = InlineKeyboardMarkup(inline_keyboard=[
     ]
 ]
 )
+
+skip_sub_check_kb = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(text='Пропустить', callback_data='skip_sub_check')
+    ]
+]
+)

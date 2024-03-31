@@ -17,7 +17,7 @@ from dotenv import find_dotenv, load_dotenv
 load_dotenv(find_dotenv())
 
 from texts import hi_msg, check_sub_msg
-from keyboards import go_kb, check_sub_kb
+from keyboards import go_kb, check_sub_kb, skip_sub_check_kb
 
 logging.basicConfig(level=logging.INFO)
 logging.info("Bot started")
@@ -166,9 +166,24 @@ async def check_subs(callback: CallbackQuery, bot: Bot, state: FSMContext):
             update_telegram_status(callback.from_user.id, 0)
     except Exception as e:
         await callback.answer(f'Ошибка: {e}')
-    await callback.message.answer(f'Подписка в телеграме: {tg_status}\nА чтобы проверить подписку в инстаграме напиши свой никнейм:')
+    await callback.message.answer(f'Подписка в телеграме: {tg_status}\nА чтобы проверить подписку в инстаграме напиши свой никнейм или нажми кнопку "Пропустить":', reply_markup=skip_sub_check_kb)
     await callback.answer()
     await state.set_state(Ig_Sub.ig_sub)
+
+@user_router.callback_query(F.data == "skip_sub_check")
+async def skip_sub_check(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer("Вы пропустили проверку подписки в Instagram.")
+    await callback.answer()
+    user_status_sum = get_user_status_sum(callback.from_user.id)
+
+    if user_status_sum == 2:
+        await callback.message.answer('Отлично, вы подписаны на обе соцсети. Мы сообщим результаты конкурса 1 мая.\n\nА пока следите за нашими соцсетями ;)')
+    elif user_status_sum == 1:
+        await callback.message.answer('Вы подписаны на один из наших каналов. Мы сообщим вам результаты конкурса 1 мая.')
+    else:
+        await callback.message.answer('Вы всё ещё не подписались ни в инстаграме, ни в телеграме. Подпишитесь сейчас и участвуйте в конкурсе!', reply_markup=check_sub_kb)
+    # Сброс состояния и сохранённых данных у пользователя
+    await state.clear()
 
 @user_router.message(StateFilter(Ig_Sub.ig_sub))
 async def check_subs(message: types.Message, bot: Bot, state: FSMContext):
