@@ -43,6 +43,7 @@ jobs:
           push: true
           platforms: linux/amd64
           no-cache: true
+          provenance: false
           labels: ${{ steps.meta.outputs.labels }}
           tags: |
             ${{ steps.meta.outputs.tags }}
