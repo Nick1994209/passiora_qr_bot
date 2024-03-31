@@ -30,4 +30,5 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
+          platforms: linux/amd64
           tags: passiora-qr-bot.cr.cloud.ru/passiora-qr-bot:latest
