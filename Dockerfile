@@ -25,4 +25,4 @@ RUN chmod -R 777 ./
 EXPOSE 5000
 
 # more https://proghunter.ru/articles/python-bot-with-chatgpt-dockerization-and-deployment-to-vps-guide
-CMD ["python", "main.py"]
+CMD ["python3", "main.py"]
