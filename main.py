@@ -12,6 +12,8 @@ from aiogram.types import CallbackQuery
 from aiogram.exceptions import TelegramNetworkError
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+from aiogram.client.bot import DefaultBotProperties
+from aiogram.enums import ParseMode
 
 from dotenv import find_dotenv, load_dotenv
 load_dotenv(find_dotenv())
@@ -22,7 +24,7 @@ from keyboards import go_kb, check_sub_kb, skip_sub_check_kb
 logging.basicConfig(level=logging.INFO)
 logging.info("Bot started")
 
-bot = Bot(token=os.getenv('TOKEN'), parse_mode="HTML")
+bot = Bot(token=os.getenv('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
 user_router = Router()
 admin_router = Router()
@@ -41,7 +43,7 @@ def add_user_to_db(user_id):
 
     # Создаем таблицу, если она еще не существует
     cursor.execute('''CREATE TABLE IF NOT EXISTS users
-                      (user_id INTEGER PRIMARY KEY, date TEXT, telegram INTEGER, instagram INTEGER)''')
+                      (user_id INTEGER PRIMARY KEY, date TEXT, telegram INTEGER, instagram INTEGER, ig_username TEXT)''')
 
     # Получаем текущую дату и время в московском часовом поясе
     moscow_tz = pytz.timezone('Europe/Moscow')
@@ -53,6 +55,19 @@ def add_user_to_db(user_id):
     # Сохраняем изменения и закрываем соединение
     conn.commit()
     conn.close()
+
+def add_ig_username_to_db(user_id, ig_username):
+    # Создаем соединение с базой данных
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    # Обновляем имя пользователя Instagram для пользователя
+    cursor.execute("UPDATE users SET ig_username = ? WHERE user_id = ?", (ig_username, user_id))
+
+    # Сохраняем изменения и закрываем соединение
+    conn.commit()
+    conn.close()
+
 
 def check_ig_sub(ig_username):
     # Создание экземпляра класса Instaloader
@@ -147,7 +162,6 @@ async def start_command(message: types.Message):
     # добавляем пользователя в базу данных 
     add_user_to_db(message.from_user.id)
 
-
 @user_router.callback_query(F.data == 'start_lottery')
 async def start_lottery_cmd(callback: CallbackQuery, bot: Bot):
     await callback.message.answer(check_sub_msg, reply_markup=check_sub_kb)
@@ -166,7 +180,7 @@ async def check_subs(callback: CallbackQuery, bot: Bot, state: FSMContext):
             update_telegram_status(callback.from_user.id, 0)
     except Exception as e:
         await callback.answer(f'Ошибка: {e}')
-    await callback.message.answer(f'Подписка в телеграме: {tg_status}\nА чтобы проверить подписку в инстаграме напиши свой никнейм или нажми кнопку "Пропустить":', reply_markup=skip_sub_check_kb)
+    await callback.message.answer(f'Подписка в телеграме: {tg_status}\nПроверку подписки в инстаграме проведем перед розыгрышем, пока напиши свой никнейм в инстаграме или нажми кнопку "Пропустить":', reply_markup=skip_sub_check_kb)
     await callback.answer()
     await state.set_state(Ig_Sub.ig_sub)
 
@@ -176,35 +190,22 @@ async def skip_sub_check(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     user_status_sum = get_user_status_sum(callback.from_user.id)
 
-    if user_status_sum == 2:
-        await callback.message.answer('Отлично, вы подписаны на обе соцсети. Мы сообщим результаты конкурса 1 мая.\n\nА пока следите за нашими соцсетями ;)')
-    elif user_status_sum == 1:
-        await callback.message.answer('Вы подписаны на один из наших каналов. Мы сообщим вам результаты конкурса 1 мая.')
+    if user_status_sum == 1:
+        await callback.message.answer('Вы подписаны на наш телеграм-канал. Мы сообщим вам результаты конкурса 1 мая.')
     else:
-        await callback.message.answer('Вы всё ещё не подписались ни в инстаграме, ни в телеграме. Подпишитесь сейчас и участвуйте в конкурсе!', reply_markup=check_sub_kb)
+        await callback.message.answer('Вы всё ещё не подписались в телеграме. Подпишитесь сейчас и участвуйте в конкурсе!', reply_markup=check_sub_kb)
     # Сброс состояния и сохранённых данных у пользователя
     await state.clear()
 
 @user_router.message(StateFilter(Ig_Sub.ig_sub))
 async def check_subs(message: types.Message, bot: Bot, state: FSMContext):
-    await message.answer('Дай мне пару секунд на проверку подписки в инстаграме...')
-    await state.update_data(ig_username=message.text.lower())
-    user_data = await state.get_data()
-    if check_ig_sub(user_data["ig_username"]):
-        ig_status = "✅"
-        update_instagram_status(message.from_user.id, 1)
-    else:
-        ig_status = "❌"
-        update_instagram_status(message.from_user.id, 0)
-    await message.answer(f'Подписка в инстаграме: {ig_status}')
+    ig_username=message.text.lower()
+    add_ig_username_to_db(message.from_user.id, ig_username)
     user_status_sum = get_user_status_sum(message.from_user.id)
-
-    if user_status_sum == 2:
-        await message.answer('Отлично, вы подписаны на обе соцсети. Мы сообщим результаты конкурса 1 мая.\n\nА пока следите за нашими соцсетями ;)')
-    elif user_status_sum == 1:
-        await message.answer('Вы подписаны на один из наших каналов. Мы сообщим вам результаты конкурса 1 мая.')
+    if user_status_sum == 1:
+        await message.answer('Вы подписаны на наш телеграм-канал. Мы сообщим вам результаты конкурса 1 мая.')
     else:
-        await message.answer('Вы всё ещё не подписались ни в инстаграме, ни в телеграме. Подпишитесь сейчас и участвуйте в конкурсе!', reply_markup=check_sub_kb)
+        await message.answer('Вы всё ещё не подписались в телеграме. Подпишитесь сейчас и участвуйте в конкурсе!', reply_markup=check_sub_kb)
     # Сброс состояния и сохранённых данных у пользователя
     await state.clear()
 
