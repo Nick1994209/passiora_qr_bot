@@ -18,6 +18,6 @@ COPY ./ ./
 RUN chmod -R 777 ./
 RUN chmod +x ./
 EXPOSE 5000
-
+STOPSIGNAL SIGTERM
 # more https://proghunter.ru/articles/python-bot-with-chatgpt-dockerization-and-deployment-to-vps-guide
 ENTRYPOINT ["python3", "main.py"]
