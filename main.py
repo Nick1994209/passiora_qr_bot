@@ -190,7 +190,7 @@ async def skip_sub_check(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     user_status_sum = get_user_status_sum(callback.from_user.id)
 
-    if user_status_sum == 1:
+    if user_status_sum >= 1:
         await callback.message.answer('Вы подписаны на наш телеграм-канал. Мы сообщим вам результаты конкурса 1 мая.')
     else:
         await callback.message.answer('Вы всё ещё не подписались в телеграме. Подпишитесь сейчас и участвуйте в конкурсе!', reply_markup=check_sub_kb)
@@ -202,7 +202,7 @@ async def check_subs(message: types.Message, bot: Bot, state: FSMContext):
     ig_username=message.text.lower()
     add_ig_username_to_db(message.from_user.id, ig_username)
     user_status_sum = get_user_status_sum(message.from_user.id)
-    if user_status_sum == 1:
+    if user_status_sum >= 1:
         await message.answer('Вы подписаны на наш телеграм-канал. Мы сообщим вам результаты конкурса 1 мая.')
     else:
         await message.answer('Вы всё ещё не подписались в телеграме. Подпишитесь сейчас и участвуйте в конкурсе!', reply_markup=check_sub_kb)
