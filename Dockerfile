@@ -20,4 +20,4 @@ RUN chmod +x ./
 EXPOSE 5000
 
 # more https://proghunter.ru/articles/python-bot-with-chatgpt-dockerization-and-deployment-to-vps-guide
-CMD ["python3", "main.py"]
+ENTRYPOINT ["python3", "main.py"]
