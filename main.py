@@ -187,6 +187,7 @@ async def check_subs(callback: CallbackQuery, bot: Bot, state: FSMContext):
 @user_router.callback_query(F.data == "skip_sub_check")
 async def skip_sub_check(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer("Вы пропустили проверку подписки в Instagram.")
+    await callback.message.answer("Спасибо, о результатах конкурса мы сообщим 1 мая.")
     await callback.answer()
     await state.clear()
 
@@ -194,7 +195,8 @@ async def skip_sub_check(callback: CallbackQuery, state: FSMContext):
 async def check_subs(message: types.Message, bot: Bot, state: FSMContext):
     ig_username=message.text.lower()
     add_ig_username_to_db(message.from_user.id, ig_username)
-    await message.answer('Записали ваш никнейм, подписку в инстаграме проверим перед розыгрышем. О результатах конкурса сообщим 1 мая.')
+    await message.answer('Записали ваш никнейм, подписку в инстаграме проверим перед розыгрышем.')
+    await message.answer("Спасибо, о результатах конкурса мы сообщим 1 мая.")
     # Сброс состояния и сохранённых данных у пользователя
     await state.clear()
 
