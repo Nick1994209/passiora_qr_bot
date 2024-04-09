@@ -1,6 +1,7 @@
 FROM python:3.10
 
-ENV PYTHONPATH "/passiora_qr_bot"
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 ENV TOKEN {$TOKEN}
 # Установим директорию для работы
 
